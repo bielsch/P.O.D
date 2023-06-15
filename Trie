@@ -1,0 +1,217 @@
+/**
+ * @file 03Tries.c
+ * @author Nome_do_Aluno
+ * @version 0.1
+ * @date 2023-06-10
+ *
+ * @copyright Copyright (c) 2023
+ *
+ * @brief Arquivo template para Questão 03 do trabalho de Pesquisa e Ordenação T2.
+ *
+ *      Implemente uma estrutura de Trie para armazenar chaves em formato de
+ * caractere. Inclua operações de inserção, remoção e busca completa e busca
+ * parcial na estrutura do Trie.
+ *      Para a busca completa, o algoritmo deve apenas informar se a chave foi
+ * encontrada ou não dentro da estrutura.
+ * 
+ *      Para a busca parcial, o algoritmo deveretornar todas as chaves armazenadas
+ * abaixo da string informada para a busca.
+ *
+ */
+#include <stdio.h>
+#include <stdlib.h>
+
+#define tamanho 13
+#define numero_de_letras 26
+
+/*-----------------------------------------------------------------------------------------*/
+struct Trie{
+    struct Trie* caractere[numero_de_letras];
+    int isLeft;
+};
+
+struct Trie* novo_trie(){
+    struct Trie* nodo = (struct Trie*)malloc(sizeof(struct Trie));
+    nodo -> isLeft = 0;
+
+    for(int i = 0; i <numero_de_letras; i++){
+        nodo -> caractere[i] = NULL;
+    }
+
+    return nodo;
+}
+
+int busca_normal(struct Trie* first, char* str){
+    if(first == NULL){
+        return 0;
+    }
+
+    struct Trie* correto = first;
+    while(*str){
+        correto = correto -> caractere[*str - 'a'];
+
+        if(correto == NULL){
+            return 0;
+        }
+        str++;
+    }
+    return correto -> isLeft;
+}
+
+int tem_proximo(struct Trie* correto){
+    for(int i = 0; i < numero_de_letras; i++){
+        if(correto -> caractere[i]){
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/*-----------------------------------------------------------------------------------------*/
+void insercao(struct Trie *fist, char* str){
+    struct Trie* correto = first;
+
+    while(*str){
+        if(correto -> caractere[*str - 'a'] == NULL){
+            correto -> caractere[*str - 'a'] = novo_trie();
+        }
+
+        correto = correto -> caractere[*str - 'a'];
+        str++;
+    }
+    correto -> isLeft = 1;
+};
+
+void remocao(struct Trie **correto, char* str){
+    if(*correto == NULL){
+        return 0;
+    }
+
+    if(*str){
+        if(*correto != NULL && (*correto) -> caractere[*str - 'a'] != NULL && remocao(&((*correto) -> caractere[*str - 'a']), str + 1) && (*correto) -> isLeft == 0){
+            if(!tem_proximo(*correto)){
+                free(*correto);
+                (*correto) = NULL;
+                return 1;
+            }else{
+                return 0;
+            }
+        }
+    }
+
+    if(*str == '\0' && (*correto) -> isLeft){
+        if(!tem_proximo(*correto)){
+            free(*correto);
+            (*correto) = NULL;
+            return 1;
+        }else{
+            (*correto) -> isLeft = 0;
+            return 0;
+        }
+    }
+    return 0;
+};
+
+void busca_parcial(){
+    /*void busca parcial(informar todas as possiveis chaves de resposta);*/
+
+};
+
+void busca_completa(){
+    /*void busca completa (informar apenas se achou ou não(Y/N));*/
+
+};
+
+/*-----------------------------------------------------------------------------------------*/
+
+int main(){
+
+    struct Trie* first = novo_trie();
+
+    insercao(first, "amy");
+    insercao(first, "ann");
+    insercao(first, "emma");
+    insercao(first, "rob");
+    insercao(first, "roger");
+    insercao(first, "robert");
+    insercao(first, "bob");
+    insercao(first, "emmily");
+
+    
+
+
+
+    return 0;
+}
+/*-----------------------------------------------------------------------------------------*/
+
+
+
+/*
+
+typedef struct node
+{
+    char value;
+    int isTerminal;
+    struct node *childs[26];
+} Node;
+
+typedef struct trie
+{
+    struct node *childs[26];
+} Trie;
+
+void initialize(Trie *head);
+void insertNode();
+void completeSearch();
+void partialSearch();
+void removeNode();
+void printChilds();
+
+int main()
+{
+    Trie myTrie;
+    initialize(&myTrie);
+    printChilds(&myTrie);
+    return 0;
+}
+
+void initialize(Trie *head)
+{
+    for (int i = 0; i < ALPHABETIC_NUMBER; i++)
+    {
+        head->childs[i] = NULL;
+    }
+}
+
+void insertNode(Trie *head, char *strValue)
+{
+    for (int i = 0; i < strlen(strValue); i++)
+    {
+        
+    }
+}
+
+void completeSearch()
+{
+}
+
+void partialSearch()
+{
+}
+
+void removeNode()
+{
+}
+
+void printChilds(Trie *head)
+{
+    for (int i = 0; i < ALPHABETIC_NUMBER; i++)
+    {
+        if (head->childs[i] == NULL)
+            printf("NULL ");
+        else
+            printf("%c ", head->childs[i]->value);
+    }
+    printf("\n");
+}*/
