@@ -1,0 +1,274 @@
+/**
+ * @file 01OrdenacaoExterna.c
+ * @author Nome_do_Aluno
+ * @version 0.1
+ * @date 2023-06-10
+ *
+ * @copyright Copyright (c) 2023
+ *
+ * @brief Arquivo template para Questão 02 do trabalho de Pesquisa e Ordenação T2.
+ *
+ *      Implemente uma ordenação externa utilizando a restrição de que somente 5
+ *  elementos podem ser armazenados em memória (vetores de teste no template). A
+ *  definição deste limite está na variável MAX_IN_MEMORY abaixo.
+ *
+ *      Utilize os vetores comentados no código para realizar seus testes.
+ *
+ * Atenção: Antes de entregar, conferir se dos dados de documentação no início
+ * do arquivo estão preenchidos corretamente.
+ *
+ */
+
+
+
+#include <stdio.h>
+
+#define MAX_IN_MEMORY 5
+
+
+
+int main() {
+
+    int chaves = {3, 98, 61, 62,  1, 99, 57, 98, 58, 18, 59, 35, 82, 91, 52, 95, 46, 69, 48, 82, 52,  4, 87, 38, 44, 42, 72,  2, 95, 84, 34, 40, 23, 11, 75, 37, 62, 96, 12, 22, 56, 20, 64,  2, 30, 48,  6, 19, 34, 31};
+    int chaves = {57, 91, 21, 89, 72, 74, 46, 61, 26, 50, 85, 76, 53, 22, 15, 40, 90, 2, 94, 54};
+    int chaves = {9,  2, 15, 19, 10, 14,  4, 13,  2, 19};
+    int chaves = {178, 231, 244, 292, 321, 356, 389, 421, 482, 488, 490, 502, 546, 641, 694, 786, 841, 890, 899, 922};
+
+
+    return 0;
+}
+
+/*/**
+ * 
+ * @author Breno Soares Alves
+ * @date 07/06/2023
+ * @brief Mode: Array initialization. The user must change the "vec" array in main function and run the program to get
+ * a print of sorted array.
+ * 
+*//*/
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+
+#define MEMORY_LIMIT 5
+
+#if defined(_WIN32)
+#define PLATFORM "windows"
+#elif defined(__unix__)
+#define PLATFORM "linux"
+#endif
+
+void sort(int *arr);
+int lowest(int *arr);
+int hasNumber(int *arr);
+
+int main()
+{
+    int vec[] = {30,29,28,27,26,25,24,23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0};
+    int vecLen = sizeof(vec) / sizeof(int);
+
+    FILE *inputFiles[MEMORY_LIMIT];
+    FILE *outputFiles[MEMORY_LIMIT];
+
+    // Open input and output files
+    for (int i = 0; i < MEMORY_LIMIT; i++)
+    {
+        char inputDirectory[30];
+        char outputDirectory[30];
+
+        if (strcmp(PLATFORM, "windows") == 0)
+        {
+            sprintf(inputDirectory, ".\\bin\\inputs\\input%d.txt", i);
+            sprintf(outputDirectory, ".\\bin\\outputs\\output%d.txt", i);
+        }
+        else
+        {
+            sprintf(inputDirectory, "./bin/inputs/input%d.txt", i);
+            sprintf(outputDirectory, "./bin/outputs/output%d.txt", i);
+        }
+
+        inputFiles[i] = fopen(inputDirectory, "w+");
+        outputFiles[i] = fopen(outputDirectory, "w+");
+    }
+
+    // Get number vector and split into input files
+    int vecIndex = 0;
+
+    while (vecIndex < vecLen)
+    {
+        // for any file
+        for (int i = 0; i < MEMORY_LIMIT; i++)
+        {
+            // create an array with 5 elements from super array
+            int arr[MEMORY_LIMIT] = {0};
+            int arrActualLen = 0;
+            for (int j = 0; j < MEMORY_LIMIT; j++)
+            {
+                if (vecIndex < vecLen)
+                {
+                    arr[j] = vec[(vecIndex)++];
+                    arrActualLen++;
+                }
+                else
+                    arr[j] = INT_MAX;
+            }
+
+            // sort it
+            sort(arr);
+
+            // write in file
+            for (int j = 0; j < arrActualLen; j++)
+            {
+                if (arr[j] == INT_MAX)
+                    break;
+
+                if (j == arrActualLen - 1)
+                {
+                    fprintf(inputFiles[i], ",%d, ", arr[j]);
+                    continue;
+                }
+                else
+                    fprintf(inputFiles[i], ",%d", arr[j]);
+            }
+        }
+    }
+
+    // Merge all input files in output file
+    int outputCount = ((int)ceil(sqrt(vecLen)) % 5) + 1;
+
+    for (int k = 0; k < outputCount; k++)
+    {
+        int arr[MEMORY_LIMIT];
+        for (int i = 0; i < MEMORY_LIMIT; i++)
+        {
+            if (k == 0)
+                fseek(inputFiles[i], 1, SEEK_SET);
+
+            fscanf(inputFiles[i], "%d,", &arr[i]);
+        }
+        while (hasNumber(arr) == 1)
+        {
+            int lowestIndex = lowest(arr);
+            fprintf(outputFiles[k], ",%d", arr[lowestIndex]);
+            int n;
+            arr[lowestIndex] = (fscanf(inputFiles[lowestIndex], "%d,", &n) == 1) ? n : INT_MAX;
+        }
+
+        for (int i = 0; i < MEMORY_LIMIT; i++)
+        {
+            fseek(inputFiles[i], 1, SEEK_CUR);
+        }
+    }
+
+    for (int i = 0; i < outputCount; i++)
+    {
+        fprintf(outputFiles[i], ",");
+    }
+
+    outputCount--;
+
+    for (int i = 0; i < MEMORY_LIMIT; i++)
+    {
+        rewind(inputFiles[i]);
+        rewind(outputFiles[i]);
+    }
+
+    for (int k = 0; k < outputCount; k++)
+    {
+        int arr[MEMORY_LIMIT];
+        for (int i = 0; i < MEMORY_LIMIT; i++)
+        {
+            arr[i] = INT_MAX;
+        }
+        for (int i = 0; i < MEMORY_LIMIT; i++)
+        {
+            fseek(outputFiles[i], 1, SEEK_SET);
+            fscanf(outputFiles[i], "%d,", &arr[i]);
+        }
+        while (hasNumber(arr) == 1)
+        {
+            int lowestIndex = lowest(arr);
+            fprintf(inputFiles[k], ",%d", arr[lowestIndex]);
+            int n;
+            arr[lowestIndex] = (fscanf(outputFiles[lowestIndex], "%d,", &n) == 1) ? n : INT_MAX;
+        }
+
+        for (int i = 0; i < MEMORY_LIMIT; i++)
+        {
+            fseek(outputFiles[i], 1, SEEK_CUR);
+        }
+    }
+
+    for (int i = 0; i < outputCount; i++)
+    {
+        fprintf(inputFiles[i], ",");
+    }
+
+    // Get final array in input0.txt
+    int farr[vecLen];
+    int farrActualLen = 0;
+
+    fseek(inputFiles[0], 1, SEEK_SET);
+
+    while(farrActualLen < vecLen)
+    {
+        fscanf(inputFiles[0], "%d,", &farr[farrActualLen++]);
+    }
+
+    printf("Initial array:\n");
+    for(int i = 0; i < vecLen; i++)
+    {
+        printf("%d ", vec[i]);
+    }
+    printf("\nSorted array:\n");
+    for(int i = 0; i < vecLen; i++)
+    {
+        printf("%d ", farr[i]);
+    }
+    printf("\n");
+
+    return 0;
+}
+
+void sort(int *arr)
+{
+    int lower;
+    for (int i = 0; i < MEMORY_LIMIT - 1; i++)
+    {
+        lower = i;
+        for (int j = i + 1; j < MEMORY_LIMIT; j++)
+        {
+            if (arr[lower] > arr[j])
+                lower = j;
+        }
+        int c = arr[i];
+        arr[i] = arr[lower];
+        arr[lower] = c;
+    }
+}
+
+int lowest(int *arr)
+{
+    int lower = 0;
+    for (int i = 1; i < MEMORY_LIMIT; i++)
+    {
+        if (arr[i] < arr[lower])
+            lower = i;
+    }
+
+    return lower;
+}
+
+int hasNumber(int *arr)
+{
+    int flag = 0;
+    for (int i = 0; i < MEMORY_LIMIT; i++)
+    {
+        if (arr[i] != INT_MAX)
+            return 1;
+    }
+    return flag;
+}
